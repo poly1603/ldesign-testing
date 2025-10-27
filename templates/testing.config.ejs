@@ -1,0 +1,53 @@
+import { defineConfig } from '@ldesign/testing'
+
+export default defineConfig({
+// 使用 <%= preset %> 预设
+  framework: '<%= config.framework || 'vitest' %>',
+    testDir: '<%= config.testDir || 'tests' %>',
+
+      // 单元测试配置
+      unit: {
+      timeout: <%= config.unit?.timeout || 5000 %>,
+        clearMocks: <%= config.unit?.clearMocks ?? true %>,
+          resetMocks: <%= config.unit?.resetMocks ?? true %>,
+            restoreMocks: <%= config.unit?.restoreMocks ?? true %>,
+              },
+
+              <% if (config.e2e) { %>
+                // E2E 测试配置
+                e2e: {
+                framework: '<%= config.e2e.framework || 'playwright' %>',
+                  baseUrl: '<%= config.e2e.baseUrl || 'http://localhost:3000' %>',
+                    testDir: '<%= config.e2e.testDir || 'tests/e2e' %>',
+                      browsers: <%= JSON.stringify(config.e2e.browsers || ['chromium']) %>,
+                        headless: <%= config.e2e.headless ?? true %>,
+                          },
+                          <% } %>
+
+                            // 覆盖率配置
+                            coverage: {
+                            enabled: <%= config.coverage?.enabled ?? true %>,
+                              provider: '<%= config.coverage?.provider || 'v8' %>',
+                                reporter: <%= JSON.stringify(config.coverage?.reporter || ['text', 'html' ]) %>,
+                                  threshold: {
+                                  branches: <%= config.coverage?.threshold?.branches || 80 %>,
+                                    functions: <%= config.coverage?.threshold?.functions || 80 %>,
+                                      lines: <%= config.coverage?.threshold?.lines || 80 %>,
+                                        statements: <%= config.coverage?.threshold?.statements || 80 %>,
+                                          },
+                                          },
+
+                                          // Mock 配置
+                                          mock: {
+                                          clearMocks: <%= config.mock?.clearMocks ?? true %>,
+                                            resetMocks: <%= config.mock?.resetMocks ?? true %>,
+                                              faker: {
+                                              locale: '<%= config.mock?.faker?.locale || 'zh_CN' %>',
+                                                },
+                                                },
+
+                                                // 并行配置
+                                                parallel: {
+                                                enabled: <%= config.parallel?.enabled ?? true %>,
+                                                  },
+                                                  })
