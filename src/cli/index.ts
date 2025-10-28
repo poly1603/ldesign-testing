@@ -7,6 +7,7 @@ import { runCommand } from './commands/run.js'
 import { coverageCommand } from './commands/coverage.js'
 import { snapshotCommand } from './commands/snapshot.js'
 import { mockCommand } from './commands/mock.js'
+import { generateCommand } from './commands/generate.js'
 
 const program = new Command()
 
@@ -88,13 +89,25 @@ program
 // Mock 数据生成命令
 program
   .command('mock <type>')
-  .description('生成 Mock 数据 (user|product|article|comment|order)')
+  .description('生成 Mock 数据 (user|product|article|comment|order|company|event|payment...)')
   .option('-c, --count <n>', '生成数量', parseInt, 10)
   .option('-l, --locale <locale>', '语言设置', 'zh_CN')
   .option('-f, --format <format>', '输出格式 (json|ts|js)', 'json')
   .option('-o, --output <file>', '输出文件')
   .action(async (type, options) => {
     await mockCommand({ type, ...options })
+  })
+
+// 生成测试命令
+program
+  .command('generate')
+  .description('生成测试文件')
+  .option('-f, --file <file>', '目标文件路径')
+  .option('-t, --type <type>', '测试类型 (unit|e2e|component|api|integration)', 'unit')
+  .option('-o, --output <dir>', '输出目录')
+  .option('--overwrite', '覆盖已存在的文件')
+  .action(async (options) => {
+    await generateCommand(options)
   })
 
 // 错误处理

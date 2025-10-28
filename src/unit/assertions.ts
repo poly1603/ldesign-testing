@@ -234,3 +234,244 @@ export function assertAlmostEqual(
   }
 }
 
+/**
+ * 断言是 null 或 undefined
+ */
+export function assertNullish(
+  value: any,
+  message?: string
+): asserts value is null | undefined {
+  if (value !== null && value !== undefined) {
+    throw new Error(
+      message || `预期为 null 或 undefined，实际为 ${typeof value}`
+    )
+  }
+}
+
+/**
+ * 断言不是 null 或 undefined
+ */
+export function assertNotNullish<T>(
+  value: T,
+  message?: string
+): asserts value is NonNullable<T> {
+  if (value === null || value === undefined) {
+    throw new Error(
+      message || `预期不为 null 或 undefined`
+    )
+  }
+}
+
+/**
+ * 断言是空数组
+ */
+export function assertEmpty<T>(
+  array: T[] | string,
+  message?: string
+): void {
+  if (array.length !== 0) {
+    throw new Error(
+      message || `预期为空，实际长度为 ${array.length}`
+    )
+  }
+}
+
+/**
+ * 断言不是空数组
+ */
+export function assertNotEmpty<T>(
+  array: T[] | string,
+  message?: string
+): void {
+  if (array.length === 0) {
+    throw new Error(
+      message || `预期不为空`
+    )
+  }
+}
+
+/**
+ * 断言数组长度
+ */
+export function assertArrayLength<T>(
+  array: T[],
+  length: number,
+  message?: string
+): void {
+  if (array.length !== length) {
+    throw new Error(
+      message || `数组长度不匹配: 期望 ${length}，实际 ${array.length}`
+    )
+  }
+}
+
+/**
+ * 断言对象键值
+ */
+export function assertObjectHasKeyValue<T extends object>(
+  obj: T,
+  key: string,
+  value: any,
+  message?: string
+): void {
+  if (!(key in obj)) {
+    throw new Error(
+      message || `对象不包含键: ${key}`
+    )
+  }
+  if ((obj as any)[key] !== value) {
+    throw new Error(
+      message || `对象键值不匹配: 期望 ${key} = ${JSON.stringify(value)}，实际为 ${JSON.stringify((obj as any)[key])}`
+    )
+  }
+}
+
+/**
+ * 断言Promise resolve
+ */
+export async function assertResolves<T>(
+  promise: Promise<T>,
+  expected?: T,
+  message?: string
+): Promise<T> {
+  try {
+    const result = await promise
+    if (expected !== undefined && result !== expected) {
+      throw new Error(
+        message || `Promise 结果不匹配: 期望 ${JSON.stringify(expected)}，实际 ${JSON.stringify(result)}`
+      )
+    }
+    return result
+  } catch (error) {
+    throw new Error(
+      message || `预期 Promise resolve，但它 reject 了: ${(error as Error).message}`
+    )
+  }
+}
+
+/**
+ * 断言Promise reject
+ */
+export async function assertRejects(
+  promise: Promise<any>,
+  expectedError?: string | RegExp,
+  message?: string
+): Promise<Error> {
+  try {
+    await promise
+    throw new Error(
+      message || `预期 Promise reject，但它 resolve 了`
+    )
+  } catch (error) {
+    const err = error as Error
+    
+    if (expectedError) {
+      if (typeof expectedError === 'string') {
+        if (!err.message.includes(expectedError)) {
+          throw new Error(
+            message || `错误消息不匹配: 期望包含 "${expectedError}"，实际为 "${err.message}"`
+          )
+        }
+      } else if (!expectedError.test(err.message)) {
+        throw new Error(
+          message || `错误消息不匹配: 期望匹配 ${expectedError}，实际为 "${err.message}"`
+        )
+      }
+    }
+    
+    return err
+  }
+}
+
+/**
+ * 断言函数被调用
+ */
+export function assertCalled(
+  fn: { called?: boolean; callCount?: number },
+  message?: string
+): void {
+  if (!fn.called && (!fn.callCount || fn.callCount === 0)) {
+    throw new Error(
+      message || `预期函数被调用，但它没有被调用`
+    )
+  }
+}
+
+/**
+ * 断言函数调用次数
+ */
+export function assertCalledTimes(
+  fn: { callCount?: number },
+  times: number,
+  message?: string
+): void {
+  if (fn.callCount !== times) {
+    throw new Error(
+      message || `预期函数被调用 ${times} 次，实际为 ${fn.callCount || 0} 次`
+    )
+  }
+}
+
+/**
+ * 断言函数被调用时使用指定参数
+ */
+export function assertCalledWith(
+  fn: { lastCall?: any[] },
+  ...args: any[]
+): void {
+  if (!fn.lastCall) {
+    throw new Error(`函数还没有被调用`)
+  }
+  
+  const actualArgs = JSON.stringify(fn.lastCall)
+  const expectedArgs = JSON.stringify(args)
+  
+  if (actualArgs !== expectedArgs) {
+    throw new Error(
+      `函数调用参数不匹配:\n期望: ${expectedArgs}\n实际: ${actualArgs}`
+    )
+  }
+}
+
+/**
+ * 断言是函数
+ */
+export function assertFunction(
+  value: any,
+  message?: string
+): asserts value is Function {
+  if (typeof value !== 'function') {
+    throw new Error(
+      message || `预期为函数，实际为 ${typeof value}`
+    )
+  }
+}
+
+/**
+ * 断言是对象
+ */
+export function assertObject(
+  value: any,
+  message?: string
+): asserts value is object {
+  if (typeof value !== 'object' || value === null) {
+    throw new Error(
+      message || `预期为对象，实际为 ${typeof value}`
+    )
+  }
+}
+
+/**
+ * 断言是数组
+ */
+export function assertArray(
+  value: any,
+  message?: string
+): asserts value is any[] {
+  if (!Array.isArray(value)) {
+    throw new Error(
+      message || `预期为数组，实际为 ${typeof value}`
+    )
+  }
+}
+

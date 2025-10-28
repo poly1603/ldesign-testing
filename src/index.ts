@@ -49,6 +49,14 @@ export * from './utils/file-utils.js'
 export * from './utils/path-utils.js'
 export * from './utils/reporter.js'
 
+// 导出性能测试
+export { BenchmarkRunner, benchmark } from './performance/benchmark.js'
+export type { BenchmarkOptions, BenchmarkResult } from './performance/benchmark.js'
+
+// 导出测试生成器
+export { TestGenerator } from './generator/test-generator.js'
+export type { GeneratorOptions } from './generator/test-generator.js'
+
 /**
  * 定义配置
  */

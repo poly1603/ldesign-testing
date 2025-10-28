@@ -14,34 +14,23 @@ export async function mockCommand(options: MockDataOptions): Promise<void> {
     let data: any
 
     // 根据类型生成数据
-    switch (options.type) {
-      case 'user':
-      case 'users':
-        data = mockFactory.user(options.count || 10)
-        break
+    const type = options.type.replace(/s$/, '') // 移除复数形式
+    const count = options.count || 10
 
-      case 'product':
-      case 'products':
-        data = mockFactory.product(options.count || 10)
-        break
-
-      case 'article':
-      case 'articles':
-        data = mockFactory.article(options.count || 10)
-        break
-
-      case 'comment':
-      case 'comments':
-        data = mockFactory.comment(options.count || 10)
-        break
-
-      case 'order':
-      case 'orders':
-        data = mockFactory.order(options.count || 10)
-        break
-
-      default:
-        throw new Error(`不支持的数据类型: ${options.type}`)
+    // 检查 mockFactory 是否有该方法
+    if (typeof (mockFactory as any)[type] === 'function') {
+      data = (mockFactory as any)[type](count)
+    } else {
+      // 支持的类型列表
+      const supportedTypes = [
+        'user', 'product', 'article', 'comment', 'order',
+        'company', 'event', 'payment', 'blog', 'notification',
+        'task', 'course'
+      ]
+      throw new Error(
+        `不支持的数据类型: ${options.type}\n` +
+        `支持的类型: ${supportedTypes.join(', ')}`
+      )
     }
 
     // 格式化输出

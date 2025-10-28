@@ -1,9 +1,26 @@
 # @ldesign/testing
 
-> 🧪 完整的测试工具集，让测试变得简单高效
+> 🧪 完整的企业级测试工具集 - 整合了 @ldesign/tester 的所有功能
+
+**v2.0.0 重大更新**: 本包已整合 `@ldesign/tester` 的所有功能，提供统一的测试解决方案。
+
+## ⚠️ 迁移说明
+
+如果你之前使用 `@ldesign/tester`，请迁移到 `@ldesign/testing`：
+
+```bash
+# 卸载旧包
+pnpm remove @ldesign/tester
+
+# 安装新包
+pnpm add -D @ldesign/testing
+```
+
+所有 `@ldesign/tester` 的功能现在都可以通过 `@ldesign/testing` 访问。CLI 命令 `ldesign-test` 仍然可用。
 
 ## ✨ 特性
 
+### 核心测试功能
 - 🧪 **单元测试** - Vitest 集成和强大的测试工具函数
 - 🎭 **E2E 测试** - Playwright 无缝集成
 - 📸 **快照测试** - 组件快照和视觉回归测试
@@ -12,6 +29,15 @@
 - ⚡ **并行执行** - 多进程并行测试，提升测试速度
 - 🎯 **预设配置** - 开箱即用的项目模板（Vue、React、Node.js等）
 - 🛠️ **自定义断言** - 扩展的断言库，让测试更简洁
+
+### 来自 @ldesign/tester 的功能（v2.0+）
+- 🤖 **AI 测试生成** - 智能生成测试用例
+- 🚀 **CI/CD 集成** - GitHub Actions、GitLab CI、Jenkins、CircleCI 模板生成
+- 📈 **Dashboard** - 测试结果可视化、历史趋势分析
+- ⚡ **性能测试** - Benchmark、Load Testing、Lighthouse 集成
+- 👁️ **视觉回归** - 截图对比、Percy 集成
+- 🏗️ **测试脚手架** - 自动生成测试文件结构
+- 🎨 **测试生成器** - 自动生成单元/E2E/组件/API/集成测试
 
 ## 📦 安装
 
