@@ -6,6 +6,9 @@
 // 导出类型
 export * from './types/index.js'
 
+// 导出自动测试套件
+export * from './auto-test/index.js'
+
 // 导出核心功能
 export { ConfigLoader, configLoader } from './core/config-loader.js'
 export { ConfigValidator, configValidator } from './core/config-validator.js'
