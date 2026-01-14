@@ -144,9 +144,9 @@ export async function advanceTime(ms: number): Promise<void> {
  * 捕获控制台输出
  */
 export class ConsoleCapture {
-  private originalLog: typeof console.log
-  private originalWarn: typeof console.warn
-  private originalError: typeof console.error
+  private originalLog: typeof console.log = console.log
+  private originalWarn: typeof console.warn = console.warn
+  private originalError: typeof console.error = console.error
   private logs: string[] = []
   private warns: string[] = []
   private errors: string[] = []
@@ -202,10 +202,8 @@ export function createTimeout(
   message = '测试超时'
 ): { promise: Promise<never>; cancel: () => void } {
   let timeoutId: NodeJS.Timeout
-  let reject: (reason: Error) => void
 
   const promise = new Promise<never>((_, rej) => {
-    reject = rej
     timeoutId = setTimeout(() => {
       rej(new Error(message))
     }, ms)

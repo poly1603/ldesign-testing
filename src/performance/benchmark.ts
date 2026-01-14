@@ -142,7 +142,7 @@ export class BenchmarkRunner {
  */
 export function benchmark(options: BenchmarkOptions = {}) {
   return function (
-    target: any,
+    _target: any,
     propertyKey: string,
     descriptor: PropertyDescriptor
   ) {

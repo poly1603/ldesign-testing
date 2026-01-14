@@ -290,337 +290,335 @@ export class MemoryAnalyzer {
       }
     }
   }
-}
-  }
 
   /**
    * 检测内存泄漏
    */
-  async detectLeaks(): Promise < MemoryLeak[] > {
-  const leaks: MemoryLeak[] = []
+  async detectLeaks(): Promise<MemoryLeak[]> {
+    const leaks: MemoryLeak[] = []
 
-    if(this.snapshots.length < 2) {
-  return leaks
-}
+    if (this.snapshots.length < 2) {
+      return leaks
+    }
 
-const initialSnapshot = this.snapshots[0]
-const finalSnapshot = this.snapshots[this.snapshots.length - 1]
+    const initialSnapshot = this.snapshots[0]
+    const finalSnapshot = this.snapshots[this.snapshots.length - 1]
 
-// 检测内存增长
-const memoryGrowth = finalSnapshot.usedHeapSize - initialSnapshot.usedHeapSize
+    // 检测内存增长
+    const memoryGrowth = finalSnapshot.usedHeapSize - initialSnapshot.usedHeapSize
 
-// 根据灵敏度设置阈值
-const sensitivityThresholds = {
-  low: 50 * 1024 * 1024, // 50MB
-  medium: 20 * 1024 * 1024, // 20MB
-  high: 10 * 1024 * 1024, // 10MB
-}
+    // 根据灵敏度设置阈值
+    const sensitivityThresholds = {
+      low: 50 * 1024 * 1024, // 50MB
+      medium: 20 * 1024 * 1024, // 20MB
+      high: 10 * 1024 * 1024, // 10MB
+    }
 
-const threshold =
-  sensitivityThresholds[this.config.leakSensitivity || 'medium']
+    const threshold =
+      sensitivityThresholds[this.config.leakSensitivity || 'medium']
 
-if (memoryGrowth > threshold) {
-  leaks.push({
-    type: 'unknown',
-    size: memoryGrowth,
-    description: `检测到显著的内存增长: ${this.formatBytes(memoryGrowth)}`,
-    suggestion:
-      '检查是否有未清理的事件监听器、定时器或闭包引用。使用浏览器开发工具的内存分析器进行详细分析。',
-  })
-}
+    if (memoryGrowth > threshold) {
+      leaks.push({
+        type: 'unknown',
+        size: memoryGrowth,
+        description: `检测到显著的内存增长: ${this.formatBytes(memoryGrowth)}`,
+        suggestion:
+          '检查是否有未清理的事件监听器、定时器或闭包引用。使用浏览器开发工具的内存分析器进行详细分析。',
+      })
+    }
 
-// 检测 detached DOM 节点
-const detachedDOMLeaks = await this.detectDetachedDOM()
-leaks.push(...detachedDOMLeaks)
+    // 检测 detached DOM 节点
+    const detachedDOMLeaks = await this.detectDetachedDOM()
+    leaks.push(...detachedDOMLeaks)
 
-// 检测事件监听器泄漏
-const eventListenerLeaks = await this.detectEventListenerLeaks()
-leaks.push(...eventListenerLeaks)
+    // 检测事件监听器泄漏
+    const eventListenerLeaks = await this.detectEventListenerLeaks()
+    leaks.push(...eventListenerLeaks)
 
-// 检测定时器泄漏
-const timerLeaks = await this.detectTimerLeaks()
-leaks.push(...timerLeaks)
+    // 检测定时器泄漏
+    const timerLeaks = await this.detectTimerLeaks()
+    leaks.push(...timerLeaks)
 
-return leaks
+    return leaks
   }
 
   /**
    * 检测 detached DOM 节点
    */
-  private async detectDetachedDOM(): Promise < MemoryLeak[] > {
-  if(!this.page || !this.cdpSession) return []
+  private async detectDetachedDOM(): Promise<MemoryLeak[]> {
+    if (!this.page || !this.cdpSession) return []
 
     try {
-    // 使用 CDP 获取堆快照并分析 detached DOM 节点
-    // 这里使用简化的方法：通过页面脚本检测
-    const detachedInfo = await this.page.evaluate(() => {
-      // 创建一个临时容器来检测 detached 节点
-      const detachedNodes: Array<{ tag: string; id?: string; className?: string }> = []
+      // 使用 CDP 获取堆快照并分析 detached DOM 节点
+      // 这里使用简化的方法：通过页面脚本检测
+      const detachedInfo = await this.page.evaluate(() => {
+        // 创建一个临时容器来检测 detached 节点
+        const detachedNodes: Array<{ tag: string; id?: string; className?: string }> = []
 
-      // 遍历所有可能的 detached 节点
-      // 注意：这是一个简化的实现，真实场景需要更复杂的堆分析
-      const allElements = document.querySelectorAll('*')
-      let detachedCount = 0
+        // 遍历所有可能的 detached 节点
+        // 注意：这是一个简化的实现，真实场景需要更复杂的堆分析
+        const allElements = document.querySelectorAll('*')
+        let detachedCount = 0
 
-      allElements.forEach((el) => {
-        // 检查元素是否真正连接到 document
-        if (!document.contains(el)) {
-          detachedCount++
-          if (detachedNodes.length < 10) { // 只记录前 10 个
-            detachedNodes.push({
-              tag: el.tagName.toLowerCase(),
-              id: el.id || undefined,
-              className: el.className || undefined,
-            })
+        allElements.forEach((el) => {
+          // 检查元素是否真正连接到 document
+          if (!document.contains(el)) {
+            detachedCount++
+            if (detachedNodes.length < 10) { // 只记录前 10 个
+              detachedNodes.push({
+                tag: el.tagName.toLowerCase(),
+                id: el.id || undefined,
+                className: el.className || undefined,
+              })
+            }
           }
+        })
+
+        return { count: detachedCount, nodes: detachedNodes }
+      })
+
+      if (detachedInfo.count > 0) {
+        const leaks: MemoryLeak[] = []
+
+        // 根据灵敏度决定是否报告
+        const threshold = this.getDetachedDOMThreshold()
+
+        if (detachedInfo.count > threshold) {
+          const nodeDescriptions = detachedInfo.nodes
+            .map((n) => {
+              const parts = [n.tag]
+              if (n.id) parts.push(`#${n.id}`)
+              if (n.className) parts.push(`.${n.className}`)
+              return parts.join('')
+            })
+            .join(', ')
+
+          leaks.push({
+            type: 'detached-dom',
+            size: detachedInfo.count * 1024, // 估算每个节点 1KB
+            location: nodeDescriptions ? `示例节点: ${nodeDescriptions}` : undefined,
+            description: `检测到 ${detachedInfo.count} 个 detached DOM 节点，这些节点已从 DOM 树中移除但仍被 JavaScript 引用`,
+            suggestion:
+              '确保在移除 DOM 元素前清理所有事件监听器和引用。使用 WeakMap 或 WeakSet 存储 DOM 引用。考虑使用框架提供的生命周期钩子进行清理。',
+          })
         }
-      })
 
-      return { count: detachedCount, nodes: detachedNodes }
-    })
-
-      if(detachedInfo.count > 0) {
-  const leaks: MemoryLeak[] = []
-
-  // 根据灵敏度决定是否报告
-  const threshold = this.getDetachedDOMThreshold()
-
-  if (detachedInfo.count > threshold) {
-    const nodeDescriptions = detachedInfo.nodes
-      .map((n) => {
-        const parts = [n.tag]
-        if (n.id) parts.push(`#${n.id}`)
-        if (n.className) parts.push(`.${n.className}`)
-        return parts.join('')
-      })
-      .join(', ')
-
-    leaks.push({
-      type: 'detached-dom',
-      size: detachedInfo.count * 1024, // 估算每个节点 1KB
-      location: nodeDescriptions ? `示例节点: ${nodeDescriptions}` : undefined,
-      description: `检测到 ${detachedInfo.count} 个 detached DOM 节点，这些节点已从 DOM 树中移除但仍被 JavaScript 引用`,
-      suggestion:
-        '确保在移除 DOM 元素前清理所有事件监听器和引用。使用 WeakMap 或 WeakSet 存储 DOM 引用。考虑使用框架提供的生命周期钩子进行清理。',
-    })
-  }
-
-  return leaks
-}
+        return leaks
+      }
     } catch (error) {
-  console.warn('Failed to detect detached DOM:', error)
-}
+      console.warn('Failed to detect detached DOM:', error)
+    }
 
-return []
+    return []
   }
 
   /**
    * 获取 detached DOM 阈值
    */
   private getDetachedDOMThreshold(): number {
-  const thresholds = {
-    low: 100,
-    medium: 50,
-    high: 20,
+    const thresholds = {
+      low: 100,
+      medium: 50,
+      high: 20,
+    }
+    return thresholds[this.config.leakSensitivity || 'medium']
   }
-  return thresholds[this.config.leakSensitivity || 'medium']
-}
 
   /**
    * 检测事件监听器泄漏
    */
-  private async detectEventListenerLeaks(): Promise < MemoryLeak[] > {
-  if(!this.page) return []
+  private async detectEventListenerLeaks(): Promise<MemoryLeak[]> {
+    if (!this.page) return []
 
     try {
-    // 注入监控脚本来跟踪事件监听器
-    const listenerInfo = await this.page.evaluate(() => {
-      // 统计页面上的事件监听器数量
-      let totalListeners = 0
-      const listenersByType: Record<string, number> = {}
+      // 注入监控脚本来跟踪事件监听器
+      const listenerInfo = await this.page.evaluate(() => {
+        // 统计页面上的事件监听器数量
+        let totalListeners = 0
+        const listenersByType: Record<string, number> = {}
 
-      // 获取所有元素
-      const allElements = document.querySelectorAll('*')
+        // 获取所有元素
+        const allElements = document.querySelectorAll('*')
 
-      // 常见的事件类型
-      const eventTypes = [
-        'click', 'mousedown', 'mouseup', 'mousemove', 'mouseover', 'mouseout',
-        'keydown', 'keyup', 'keypress',
-        'focus', 'blur', 'change', 'input',
-        'scroll', 'resize', 'load', 'unload',
-        'touchstart', 'touchmove', 'touchend',
-      ]
+        // 常见的事件类型
+        const eventTypes = [
+          'click', 'mousedown', 'mouseup', 'mousemove', 'mouseover', 'mouseout',
+          'keydown', 'keyup', 'keypress',
+          'focus', 'blur', 'change', 'input',
+          'scroll', 'resize', 'load', 'unload',
+          'touchstart', 'touchmove', 'touchend',
+        ]
 
-      // 尝试检测事件监听器（这是一个近似方法）
-      allElements.forEach((el) => {
-        eventTypes.forEach((eventType) => {
-          // 检查元素是否有该事件的监听器
-          // 注意：这只能检测到通过 addEventListener 添加的监听器
-          const hasListener = (el as any)[`on${eventType}`] !== null
-          if (hasListener) {
-            totalListeners++
-            listenersByType[eventType] = (listenersByType[eventType] || 0) + 1
-          }
+        // 尝试检测事件监听器（这是一个近似方法）
+        allElements.forEach((el) => {
+          eventTypes.forEach((eventType) => {
+            // 检查元素是否有该事件的监听器
+            // 注意：这只能检测到通过 addEventListener 添加的监听器
+            const hasListener = (el as any)[`on${eventType}`] !== null
+            if (hasListener) {
+              totalListeners++
+              listenersByType[eventType] = (listenersByType[eventType] || 0) + 1
+            }
+          })
         })
+
+        // 获取最多的事件类型
+        const topListeners = Object.entries(listenersByType)
+          .sort(([, a], [, b]) => b - a)
+          .slice(0, 5)
+          .map(([type, count]) => `${type}(${count})`)
+
+        return {
+          total: totalListeners,
+          byType: listenersByType,
+          topListeners,
+        }
       })
-
-      // 获取最多的事件类型
-      const topListeners = Object.entries(listenersByType)
-        .sort(([, a], [, b]) => b - a)
-        .slice(0, 5)
-        .map(([type, count]) => `${type}(${count})`)
-
-      return {
-        total: totalListeners,
-        byType: listenersByType,
-        topListeners,
-      }
-    })
 
       const threshold = this.getEventListenerThreshold()
 
-      if(listenerInfo.total > threshold) {
-  return [
-    {
-      type: 'event-listener',
-      size: listenerInfo.total * 100, // 估算每个监听器 100 bytes
-      location: listenerInfo.topListeners.length > 0
-        ? `主要事件类型: ${listenerInfo.topListeners.join(', ')}`
-        : undefined,
-      description: `检测到大量事件监听器 (${listenerInfo.total})，可能存在未清理的监听器`,
-      suggestion:
-        '确保在组件卸载时移除事件监听器。使用 removeEventListener 或框架提供的清理机制（如 Vue 的 onUnmounted、React 的 useEffect cleanup）。考虑使用事件委托减少监听器数量。',
-    },
-  ]
-}
+      if (listenerInfo.total > threshold) {
+        return [
+          {
+            type: 'event-listener',
+            size: listenerInfo.total * 100, // 估算每个监听器 100 bytes
+            location: listenerInfo.topListeners.length > 0
+              ? `主要事件类型: ${listenerInfo.topListeners.join(', ')}`
+              : undefined,
+            description: `检测到大量事件监听器 (${listenerInfo.total})，可能存在未清理的监听器`,
+            suggestion:
+              '确保在组件卸载时移除事件监听器。使用 removeEventListener 或框架提供的清理机制（如 Vue 的 onUnmounted、React 的 useEffect cleanup）。考虑使用事件委托减少监听器数量。',
+          },
+        ]
+      }
     } catch (error) {
-  console.warn('Failed to detect event listener leaks:', error)
-}
+      console.warn('Failed to detect event listener leaks:', error)
+    }
 
-return []
+    return []
   }
 
   /**
    * 获取事件监听器阈值
    */
   private getEventListenerThreshold(): number {
-  const thresholds = {
-    low: 2000,
-    medium: 1000,
-    high: 500,
+    const thresholds = {
+      low: 2000,
+      medium: 1000,
+      high: 500,
+    }
+    return thresholds[this.config.leakSensitivity || 'medium']
   }
-  return thresholds[this.config.leakSensitivity || 'medium']
-}
 
   /**
    * 检测定时器泄漏
    */
-  private async detectTimerLeaks(): Promise < MemoryLeak[] > {
-  if(!this.page) return []
+  private async detectTimerLeaks(): Promise<MemoryLeak[]> {
+    if (!this.page) return []
 
     try {
-    // 注入监控脚本来跟踪定时器
-    const timerInfo = await this.page.evaluate(() => {
-      // 跟踪活跃的定时器
-      // 注意：这需要在页面加载时注入监控代码，这里使用简化方法
+      // 注入监控脚本来跟踪定时器
+      const timerInfo = await this.page.evaluate(() => {
+        // 跟踪活跃的定时器
+        // 注意：这需要在页面加载时注入监控代码，这里使用简化方法
 
-      // 尝试通过全局对象检测定时器
-      // 这是一个近似方法，实际需要在页面加载前注入监控
-      let activeTimers = 0
-      let activeIntervals = 0
+        // 尝试通过全局对象检测定时器
+        // 这是一个近似方法，实际需要在页面加载前注入监控
+        let activeTimers = 0
+        let activeIntervals = 0
 
-      // 检查 window 对象上可能存在的定时器引用
-      // 这只是一个示例，实际检测需要更复杂的机制
-      const windowKeys = Object.keys(window)
-      windowKeys.forEach((key) => {
-        const value = (window as any)[key]
-        if (typeof value === 'number' && value > 0 && value < 100000) {
-          // 可能是定时器 ID（这是一个非常粗略的估计）
-          activeTimers++
+        // 检查 window 对象上可能存在的定时器引用
+        // 这只是一个示例，实际检测需要更复杂的机制
+        const windowKeys = Object.keys(window)
+        windowKeys.forEach((key) => {
+          const value = (window as any)[key]
+          if (typeof value === 'number' && value > 0 && value < 100000) {
+            // 可能是定时器 ID（这是一个非常粗略的估计）
+            activeTimers++
+          }
+        })
+
+        return {
+          timers: activeTimers,
+          intervals: activeIntervals,
+          total: activeTimers + activeIntervals,
         }
       })
 
-      return {
-        timers: activeTimers,
-        intervals: activeIntervals,
-        total: activeTimers + activeIntervals,
-      }
-    })
-
       const threshold = this.getTimerThreshold()
 
-      if(timerInfo.total > threshold) {
-  return [
-    {
-      type: 'timer',
-      size: timerInfo.total * 50, // 估算每个定时器 50 bytes
-      location: `setTimeout: ${timerInfo.timers}, setInterval: ${timerInfo.intervals}`,
-      description: `检测到大量未清理的定时器 (${timerInfo.total})，包括 ${timerInfo.timers} 个 timeout 和 ${timerInfo.intervals} 个 interval`,
-      suggestion:
-        '确保在组件卸载时清理所有定时器。使用 clearTimeout 和 clearInterval。在 Vue 中使用 onUnmounted，在 React 中使用 useEffect 的 cleanup 函数。考虑使用 requestAnimationFrame 替代高频定时器。',
-    },
-  ]
-}
+      if (timerInfo.total > threshold) {
+        return [
+          {
+            type: 'timer',
+            size: timerInfo.total * 50, // 估算每个定时器 50 bytes
+            location: `setTimeout: ${timerInfo.timers}, setInterval: ${timerInfo.intervals}`,
+            description: `检测到大量未清理的定时器 (${timerInfo.total})，包括 ${timerInfo.timers} 个 timeout 和 ${timerInfo.intervals} 个 interval`,
+            suggestion:
+              '确保在组件卸载时清理所有定时器。使用 clearTimeout 和 clearInterval。在 Vue 中使用 onUnmounted，在 React 中使用 useEffect 的 cleanup 函数。考虑使用 requestAnimationFrame 替代高频定时器。',
+          },
+        ]
+      }
     } catch (error) {
-  console.warn('Failed to detect timer leaks:', error)
-}
+      console.warn('Failed to detect timer leaks:', error)
+    }
 
-return []
+    return []
   }
 
   /**
    * 获取定时器阈值
    */
   private getTimerThreshold(): number {
-  const thresholds = {
-    low: 200,
-    medium: 100,
-    high: 50,
+    const thresholds = {
+      low: 200,
+      medium: 100,
+      high: 50,
+    }
+    return thresholds[this.config.leakSensitivity || 'medium']
   }
-  return thresholds[this.config.leakSensitivity || 'medium']
-}
 
   /**
    * 计算内存评分
    */
   private calculateScore(
-  finalHeapSize: number,
-  peakHeapSize: number,
-  growthRate: number,
-  leaks: MemoryLeak[]
-): number {
-  let score = 100
+    finalHeapSize: number,
+    peakHeapSize: number,
+    growthRate: number,
+    leaks: MemoryLeak[]
+  ): number {
+    let score = 100
 
-  // 根据最终堆大小扣分
-  const thresholdBytes = (this.config.threshold || 100) * 1024 * 1024
-  if (finalHeapSize > thresholdBytes) {
-    const excess = finalHeapSize - thresholdBytes
-    score -= Math.min(30, (excess / thresholdBytes) * 30)
+    // 根据最终堆大小扣分
+    const thresholdBytes = (this.config.threshold || 100) * 1024 * 1024
+    if (finalHeapSize > thresholdBytes) {
+      const excess = finalHeapSize - thresholdBytes
+      score -= Math.min(30, (excess / thresholdBytes) * 30)
+    }
+
+    // 根据峰值堆大小扣分
+    if (peakHeapSize > thresholdBytes * 1.5) {
+      score -= 10
+    }
+
+    // 根据增长率扣分
+    if (growthRate > 0.5) {
+      // 增长超过 50%
+      score -= Math.min(20, growthRate * 20)
+    }
+
+    // 根据泄漏数量扣分
+    score -= Math.min(40, leaks.length * 10)
+
+    return Math.max(0, Math.min(100, Math.round(score)))
   }
-
-  // 根据峰值堆大小扣分
-  if (peakHeapSize > thresholdBytes * 1.5) {
-    score -= 10
-  }
-
-  // 根据增长率扣分
-  if (growthRate > 0.5) {
-    // 增长超过 50%
-    score -= Math.min(20, growthRate * 20)
-  }
-
-  // 根据泄漏数量扣分
-  score -= Math.min(40, leaks.length * 10)
-
-  return Math.max(0, Math.min(100, Math.round(score)))
-}
 
   /**
    * 格式化字节数
    */
   private formatBytes(bytes: number): string {
-  if (bytes < 1024) return `${bytes} B`
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(2)} KB`
-  return `${(bytes / (1024 * 1024)).toFixed(2)} MB`
-}
+    if (bytes < 1024) return `${bytes} B`
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(2)} KB`
+    return `${(bytes / (1024 * 1024)).toFixed(2)} MB`
+  }
 }

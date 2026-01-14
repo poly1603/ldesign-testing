@@ -5,13 +5,20 @@ import type { MSWConfig } from '../types/index.js'
 import { logger } from '../utils/logger.js'
 
 export class MSWIntegration {
-  private config: MSWConfig
+  private _config: MSWConfig
 
   constructor(config: MSWConfig = {}) {
-    this.config = {
+    this._config = {
       quiet: false,
       ...config,
     }
+  }
+
+  /**
+   * 获取配置
+   */
+  get config(): MSWConfig {
+    return this._config
   }
 
   /**
@@ -41,7 +48,7 @@ export class MSWIntegration {
   /**
    * 获取服务器实例（用于 Node.js 环境）
    */
-  async setupServer(handlers: any[]): Promise<any> {
+  async setupServer(_handlers: any[]): Promise<any> {
     logger.debug('设置 MSW 服务器')
     // 实际使用时需要从 msw/node 导入 setupServer
     return {
@@ -56,7 +63,7 @@ export class MSWIntegration {
   /**
    * 获取浏览器实例（用于浏览器环境）
    */
-  async setupWorker(handlers: any[]): Promise<any> {
+  async setupWorker(_handlers: any[]): Promise<any> {
     logger.debug('设置 MSW Worker')
     // 实际使用时需要从 msw/browser 导入 setupWorker
     return {

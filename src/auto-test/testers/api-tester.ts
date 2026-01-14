@@ -408,7 +408,7 @@ export class APITester {
    */
   private calculateScore(
     totalRequests: number,
-    successfulRequests: number,
+    _successfulRequests: number,
     failedRequests: number,
     duplicateRequests: DuplicateRequest[],
     slowRequests: SlowRequest[],

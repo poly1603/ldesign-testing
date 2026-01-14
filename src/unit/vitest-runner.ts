@@ -25,7 +25,7 @@ export class VitestRunner {
     logger.debug(`命令: vitest ${args.join(' ')}`)
 
     try {
-      const result = await execa('vitest', args, {
+      await execa('vitest', args, {
         cwd: this.cwd,
         stdio: 'inherit',
         env: {

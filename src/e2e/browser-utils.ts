@@ -79,7 +79,7 @@ export async function getText(
   page: Page,
   selector: string
 ): Promise<string> {
-  return page.locator(selector).textContent() || ''
+  return (await page.locator(selector).textContent()) || ''
 }
 
 /**

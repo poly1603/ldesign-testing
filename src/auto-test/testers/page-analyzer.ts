@@ -16,7 +16,7 @@ import type {
   AccessibilityViolation,
 } from '../types/index.js'
 import { AutoTestError, ErrorCode } from '../types/index.js'
-import { AxePuppeteer } from '@axe-core/playwright'
+import { AxeBuilder } from '@axe-core/playwright'
 
 /**
  * 页面分析器类
@@ -242,7 +242,7 @@ export class PageAnalyzer {
       hasTitle,
       title,
       hasMetaDescription,
-      metaDescription,
+      metaDescription: metaDescription ?? undefined,
       hasProperHeadingStructure,
       imagesWithAlt: imageStats.imagesWithAlt,
       totalImages: imageStats.totalImages,
@@ -257,7 +257,7 @@ export class PageAnalyzer {
   async checkAccessibility(page: Page): Promise<AccessibilityResult> {
     try {
       // 使用 axe-core 进行无障碍检测
-      const axe = new AxePuppeteer(page)
+      const axe = new AxeBuilder({ page } as any)
 
       // 根据配置的 WCAG 等级设置规则
       const wcagLevel = this.config.wcagLevel || 'AA'

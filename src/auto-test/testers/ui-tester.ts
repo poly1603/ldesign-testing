@@ -7,7 +7,6 @@ import type { Page } from '@playwright/test'
 import type {
   UITestResult,
   UIConfig,
-  Viewport,
   VisualResult,
   ResponsiveResult,
   InteractionResult,
@@ -264,7 +263,7 @@ export class UITester {
     )
 
     // 保存差异图
-    await fs.writeFile(diffPath, PNG.sync.write(diff))
+    await fs.writeFile(diffPath, PNG.sync.write(diff) as unknown as Uint8Array)
 
     // 返回差异百分比
     return mismatchedPixels / (width * height)
@@ -278,7 +277,7 @@ export class UITester {
     page: Page,
     routes: string[],
     screenshots: Screenshot[],
-    styleIssues: StyleIssue[]
+    _styleIssues: StyleIssue[]
   ): Promise<ResponsiveResult> {
     const viewportResults: ResponsiveResult['viewportResults'] = []
     let totalIssues = 0
@@ -433,7 +432,7 @@ export class UITester {
         const darkModeToggled = await page.evaluate(() => {
           // 尝试常见的暗黑模式切换方法
           const html = document.documentElement
-          const body = document.body
+          void document.body // 保留引用以备将来使用
 
           // 方法1: 切换 class
           if (html.classList.contains('light')) {
@@ -517,7 +516,7 @@ export class UITester {
 
       elements.forEach((el, index) => {
         const computed = window.getComputedStyle(el)
-        const rect = el.getBoundingClientRect()
+        void el.getBoundingClientRect() // 保留引用以备将来使用
 
         // 检测溢出
         if (computed.overflow === 'visible') {

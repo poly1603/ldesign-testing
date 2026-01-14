@@ -5,7 +5,8 @@
 
 import type { Page } from '@playwright/test'
 import lighthouse from 'lighthouse'
-import { onCLS, onFCP, onFID, onLCP, onTTFB, onINP, type Metric } from 'web-vitals'
+// web-vitals functions would be used in client-side context
+// import { onCLS, onFCP, onFID, onLCP, onTTFB, onINP, type Metric } from 'web-vitals'
 import type {
   PerformanceTestResult,
   WebVitalsResult,
@@ -26,7 +27,7 @@ import type {
  */
 export class PerformanceProfiler {
   private config: PerformanceConfig
-  private webVitalsMetrics: Partial<WebVitalsResult> = {}
+  private webVitalsCache: Partial<WebVitalsResult> = {}
 
   constructor(config: PerformanceConfig = {}) {
     this.config = {
@@ -79,7 +80,7 @@ export class PerformanceProfiler {
    */
   async measureWebVitals(page: Page): Promise<WebVitalsResult> {
     // 重置指标
-    this.webVitalsMetrics = {}
+    this.webVitalsCache = {}
 
     // 在页面上下文中注入 web-vitals 测量代码
     await page.evaluate(() => {
@@ -158,8 +159,15 @@ export class PerformanceProfiler {
       INP: metrics.INP || 0,
     }
 
-    this.webVitalsMetrics = result
+    this.webVitalsCache = result
     return result
+  }
+
+  /**
+   * 获取缓存的 Web Vitals 指标
+   */
+  getCachedWebVitals(): Partial<WebVitalsResult> {
+    return this.webVitalsCache
   }
 
   /**

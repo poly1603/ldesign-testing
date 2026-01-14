@@ -190,12 +190,12 @@ export function mockModule<T extends Record<string, any>>(
 
   Object.entries(mocks).forEach(([key, value]) => {
     originals.set(key as keyof T, module[key])
-    module[key] = value
+    ;(module as Record<string, any>)[key] = value
   })
 
   return () => {
     originals.forEach((value, key) => {
-      module[key] = value
+      ;(module as Record<string, any>)[key as string] = value
     })
   }
 }

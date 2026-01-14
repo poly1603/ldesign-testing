@@ -161,8 +161,8 @@ export class MockFactory {
         address: this.faker.location.streetAddress(),
         city: this.faker.location.city(),
         coordinates: {
-          lat: parseFloat(this.faker.location.latitude()),
-          lng: parseFloat(this.faker.location.longitude()),
+          lat: parseFloat(String(this.faker.location.latitude())),
+          lng: parseFloat(String(this.faker.location.longitude())),
         },
       },
       startDate: this.faker.date.future(),

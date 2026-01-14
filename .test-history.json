@@ -1,0 +1,69 @@
+{
+  "tests": {
+    "src\\auto-test\\core\\config-loader.test.ts": {
+      "testName": "config-loader.test",
+      "executionCount": 2,
+      "failureCount": 0,
+      "failureRate": 0,
+      "avgDuration": 1000,
+      "isFlaky": false
+    },
+    "src\\auto-test\\core\\project-detector.test.ts": {
+      "testName": "project-detector.test",
+      "executionCount": 2,
+      "failureCount": 0,
+      "failureRate": 0,
+      "avgDuration": 1000,
+      "isFlaky": false
+    },
+    "src\\auto-test\\testers\\api-tester.test.ts": {
+      "testName": "api-tester.test",
+      "executionCount": 2,
+      "failureCount": 0,
+      "failureRate": 0,
+      "avgDuration": 1000,
+      "isFlaky": false
+    },
+    "src\\auto-test\\testers\\memory-analyzer.test.ts": {
+      "testName": "memory-analyzer.test",
+      "executionCount": 2,
+      "failureCount": 0,
+      "failureRate": 0,
+      "avgDuration": 1000,
+      "isFlaky": false
+    },
+    "src\\auto-test\\testers\\page-analyzer.test.ts": {
+      "testName": "page-analyzer.test",
+      "executionCount": 2,
+      "failureCount": 0,
+      "failureRate": 0,
+      "avgDuration": 1000,
+      "isFlaky": false
+    },
+    "src\\auto-test\\testers\\performance-profiler.test.ts": {
+      "testName": "performance-profiler.test",
+      "executionCount": 2,
+      "failureCount": 0,
+      "failureRate": 0,
+      "avgDuration": 1000,
+      "isFlaky": false
+    },
+    "src\\auto-test\\testers\\ui-tester.test.ts": {
+      "testName": "ui-tester.test",
+      "executionCount": 2,
+      "failureCount": 0,
+      "failureRate": 0,
+      "avgDuration": 1000,
+      "isFlaky": false
+    },
+    "src\\auto-test\\types\\index.test.ts": {
+      "testName": "index.test",
+      "executionCount": 2,
+      "failureCount": 0,
+      "failureRate": 0,
+      "avgDuration": 1000,
+      "isFlaky": false
+    }
+  },
+  "lastUpdated": 1768377071942
+}

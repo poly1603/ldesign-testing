@@ -3,17 +3,13 @@
  * 项目检测器，自动识别项目类型、框架和构建工具
  */
 
-import { readFile, access, readdir } from 'node:fs/promises'
+import { readFile, readdir } from 'node:fs/promises'
 import { join, resolve } from 'node:path'
 import { existsSync, statSync } from 'node:fs'
-import { parse as parseYaml } from 'yaml'
 import type {
   ProjectInfo,
   FrameworkInfo,
-  FrameworkName,
   BuildTool,
-  AutoTestError,
-  ErrorCode,
 } from '../types/index.js'
 
 /**
@@ -22,6 +18,7 @@ import type {
 interface PackageJson {
   name?: string
   version?: string
+  main?: string
   dependencies?: Record<string, string>
   devDependencies?: Record<string, string>
   scripts?: Record<string, string>

@@ -1,21 +1,29 @@
 /**
  * 并行测试运行器
  */
-import { Worker } from 'worker_threads'
+// Worker will be used in future implementation
+// import { Worker } from 'worker_threads'
 import os from 'os'
 import type { TestingConfig, RunOptions, TestResult } from '../types/index.js'
 import { logger } from '../utils/logger.js'
 
 export class ParallelRunner {
   private config: TestingConfig
-  private cwd: string
+  private _cwd: string
   private maxWorkers: number
 
   constructor(config: TestingConfig, cwd: string) {
     this.config = config
-    this.cwd = cwd
+    this._cwd = cwd
     this.maxWorkers =
       config.parallel?.workers || os.cpus().length
+  }
+
+  /**
+   * 获取工作目录
+   */
+  get cwd(): string {
+    return this._cwd
   }
 
   /**
@@ -67,8 +75,8 @@ export class ParallelRunner {
    * 顺序运行测试
    */
   private async runSequential(
-    testFiles: string[],
-    options: RunOptions
+    _testFiles: string[],
+    _options: RunOptions
   ): Promise<TestResult> {
     const startTime = Date.now()
 
@@ -93,7 +101,7 @@ export class ParallelRunner {
    */
   private async runChunk(
     files: string[],
-    options: RunOptions
+    _options: RunOptions
   ): Promise<TestResult> {
     const startTime = Date.now()
 

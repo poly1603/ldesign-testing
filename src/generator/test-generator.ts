@@ -136,7 +136,7 @@ describe('${baseName}', () => {
   /**
    * 生成 E2E 测试
    */
-  private static generateE2ETest(fileName: string, baseName: string): string {
+  private static generateE2ETest(_fileName: string, baseName: string): string {
     return `import { test, expect } from '@playwright/test'
 
 test.describe('${baseName} E2E 测试', () => {
@@ -210,7 +210,7 @@ describe('${baseName} 组件', () => {
   /**
    * 生成 API 测试
    */
-  private static generateAPITest(fileName: string, baseName: string): string {
+  private static generateAPITest(_fileName: string, baseName: string): string {
     return `import { describe, it, expect, beforeAll, afterAll } from 'vitest'
 import request from 'supertest'
 
@@ -265,7 +265,7 @@ describe('${baseName} API', () => {
    * 生成集成测试
    */
   private static generateIntegrationTest(
-    fileName: string,
+    _fileName: string,
     baseName: string
   ): string {
     return `import { describe, it, expect, beforeAll, afterAll } from 'vitest'

@@ -49,7 +49,7 @@ export class VisualSnapshot {
 
     const snapshotPath = this.getSnapshotPath(options.name)
     await fs.ensureDir(path.dirname(snapshotPath))
-    await fs.writeFile(snapshotPath, screenshot)
+    await fs.writeFile(snapshotPath, screenshot as unknown as Uint8Array)
 
     logger.debug(`视觉快照已创建: ${options.name}`)
     return screenshot
@@ -95,7 +95,7 @@ export class VisualSnapshot {
     if (!result.matches && result.diffImage) {
       const diffPath = this.getDiffPath(options.name)
       await fs.ensureDir(path.dirname(diffPath))
-      await fs.writeFile(diffPath, result.diffImage)
+      await fs.writeFile(diffPath, result.diffImage as unknown as Uint8Array)
       logger.debug(`差异图片已保存: ${diffPath}`)
     }
 
