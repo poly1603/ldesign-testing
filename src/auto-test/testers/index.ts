@@ -5,3 +5,4 @@
 
 export * from './memory-analyzer.js'
 export * from './performance-profiler.js'
+export * from './ui-tester.js'
