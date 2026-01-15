@@ -8,6 +8,7 @@ import { coverageCommand } from './commands/coverage.js'
 import { snapshotCommand } from './commands/snapshot.js'
 import { mockCommand } from './commands/mock.js'
 import { generateCommand } from './commands/generate.js'
+import { dashboardCommand } from './commands/dashboard.js'
 
 const program = new Command()
 
@@ -108,6 +109,19 @@ program
   .option('--overwrite', '覆盖已存在的文件')
   .action(async (options) => {
     await generateCommand(options)
+  })
+
+// Dashboard 命令
+program
+  .command('dashboard')
+  .alias('ui')
+  .description('启动可视化 UI Dashboard')
+  .option('-p, --port <port>', '服务端口', parseInt)
+  .option('-H, --host <host>', '主机地址')
+  .option('--no-open', '不自动打开浏览器')
+  .option('-t, --theme <theme>', '主题 (light|dark|auto)')
+  .action(async (options) => {
+    await dashboardCommand(options)
   })
 
 // 错误处理

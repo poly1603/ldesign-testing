@@ -22,11 +22,14 @@ export * from './analyzers/index.js'
 // 导出管理器模块
 export * from './managers/index.js'
 
-// 导出适配器 (将在后续任务中实现)
-// export * from './adapters/index.js'
+// 导出 CI 集成
+export * from './ci/index.js'
 
-// 导出 CLI (将在后续任务中实现)
-// export * from './cli/index.js'
+// 导出通知系统
+export * from './notify/index.js'
+
+// 导出测试数据工厂
+export * from './data/index.js'
 
 /**
  * 定义自动测试配置

@@ -52,6 +52,8 @@
     "build": "tsup",
     "dev": "tsup --watch",
     "test": "vitest",
+    "dashboard": "node bin/cli.js dashboard",
+    "ui": "node bin/cli.js ui",
     "test:run": "vitest run",
     "test:coverage": "vitest run --coverage",
     "lint": "eslint src",
@@ -86,7 +88,9 @@
     "pngjs": "^7.0.0",
     "tinybench": "^2.6.0",
     "vitest": "^2.0.0",
-    "web-vitals": "^3.5.0"
+    "web-vitals": "^3.5.0",
+    "ws": "^8.16.0",
+    "open": "^10.0.0"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.11.0",
@@ -99,6 +103,7 @@
     "@types/fs-extra": "^11.0.4",
     "@types/inquirer": "^9.0.7",
     "@types/node": "^20.11.16",
+    "@types/ws": "^8.5.10",
     "@types/pixelmatch": "^5.2.6",
     "@types/pngjs": "^6.0.5",
     "@vitest/coverage-v8": "^2.0.0",

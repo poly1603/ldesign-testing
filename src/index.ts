@@ -60,6 +60,20 @@ export type { BenchmarkOptions, BenchmarkResult } from './performance/benchmark.
 export { TestGenerator } from './generator/test-generator.js'
 export type { GeneratorOptions } from './generator/test-generator.js'
 
+// 导出 Dashboard
+export { DashboardServer, DEFAULT_DASHBOARD_CONFIG } from './dashboard/index.js'
+export type {
+  DashboardConfig,
+  TestEvent,
+  TestResultSummary,
+  DashboardStats,
+  TrendData,
+  ReportListItem,
+  TestFileInfo,
+  ProjectInfo,
+} from './dashboard/index.js'
+
+
 /**
  * 定义配置
  */

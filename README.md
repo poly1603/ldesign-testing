@@ -109,6 +109,33 @@ npx ltesting mock product --count 20 --format ts
 # 支持的数据类型：user, product, article, comment, order
 ```
 
+### 5. 📊 可视化 Dashboard
+
+```bash
+# 启动 Dashboard UI
+npx ltesting dashboard
+
+# 或使用别名
+npx ltesting ui
+
+# 指定端口
+npx ltesting dashboard --port 8080
+
+# 不自动打开浏览器
+npx ltesting dashboard --no-open
+
+# 指定主题
+npx ltesting dashboard --theme dark
+```
+
+Dashboard 功能包括：
+- 📊 **仪表盘** - 实时测试统计、分数、通过率
+- 📈 **趋势分析** - 历史测试结果趋势图表
+- 🧪 **测试文件** - 浏览和管理测试文件
+- 📋 **测试报告** - 查看历史报告
+- ⚙️ **配置编辑** - 可视化编辑测试配置
+- 🔔 **实时通知** - WebSocket 实时测试状态更新
+
 ## ⚙️ 配置
 
 创建 `testing.config.ts`：

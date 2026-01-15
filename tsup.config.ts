@@ -28,6 +28,8 @@ export default defineConfig({
     'pngjs',
     '@vitest/ui',
     '@vitest/coverage-v8',
+    'ws',
+    'open',
   ],
 })
 
